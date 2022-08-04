@@ -26,14 +26,25 @@ jobs:
             docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
             docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
 
-        - name: 'Deploy to Azure Container Instances'
-          uses: 'azure/aci-deploy@v1'
+        - name: Azure login
+          id: login
+          uses: azure/login@v1.4.3
           with:
-            resource-group: ${{ secrets.RESOURCE_GROUP }}
-            dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
-            image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
-            registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-            registry-username: ${{ secrets.REGISTRY_USERNAME }}
-            registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-            name: aci-sampleapp
-            location: 'east us'
+           creds: ${{ secrets.AZURE_CREDENTIALS }}
+        - name: Set AKS context
+          id: set-context
+          uses: azure/aks-set-context@v3
+          with:
+           resource-group: '${{ secrets.RESOURCE_GROUP }}' 
+           cluster-name: '${{ secrets.CLUSTER_NAME }}'
+        - name: Setup kubectl
+          id: install-kubectl
+          uses: azure/setup-kubectl@v3
+        - name: Deploy to AKS
+          id: deploy-aks
+          uses: Azure/k8s-deploy@v4
+          with:
+           namespace: 'dev'
+           manifests: k8s/deployment.yml
+           images: '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/sampleapp:${{ github.sha }}'
+           pull: false 
