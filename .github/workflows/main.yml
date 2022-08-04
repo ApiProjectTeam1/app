@@ -49,6 +49,6 @@ jobs:
             manifests: 
               k8s/deployment.yml
             images: 
-              apistoneteam1.azurecr.io/sampleapp:${{ github.sha }}
+              ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
             imagepullsecrets: |
              k8s-secret
