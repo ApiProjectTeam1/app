@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appteam1
+spec:
+  selector:
+    matchLabels:
+      app: appteam1
+  template:
+    metadata:
+      labels:
+        app: appteam1
+    spec:
+      containers:
+      - name: appteam1
+        image: sampleapp
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: appteam1-service
+spec:
+  selector:
+    app: appteam1
+  type: LoadBalancer
+  ports:
+  - port: 8080
+    targetPort: 80
