@@ -46,5 +46,5 @@ jobs:
           with:
            namespace: 'dev'
            manifests: k8s/deployment.yml
-           images: '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/sampleapp:${{ github.sha }}'
+           images: '${{ secrets.REGISTRY }}.azurecr.io/sampleapp:${{ github.sha }}'
            pull: false 
