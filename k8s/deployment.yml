@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: appteam1
 spec:
-  replicas: 2
+  replicas: 1
   paused: false
   selector:
     matchLabels:
