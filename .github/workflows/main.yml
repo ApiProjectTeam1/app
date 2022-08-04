@@ -44,6 +44,7 @@ jobs:
            container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
            secret-name: k8s-secret 
         - name: Deploy
+        
           run: |
             kubectl apply -f k8s/deployment.yml
 
