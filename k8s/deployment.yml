@@ -18,7 +18,7 @@ spec:
         image: fd860fbe3a518dbcd05c7b73e1feee5766aafe80
         resources:
           limits:
-            memory: "128Mi"
+            memory: "500Mi"
             cpu: "500m"
         ports:
         - containerPort: 80
