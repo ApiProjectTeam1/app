@@ -4,6 +4,7 @@ metadata:
   name: appteam1
 spec:
   replicas: 2
+  paused: false
   selector:
     matchLabels:
       app: appteam1
