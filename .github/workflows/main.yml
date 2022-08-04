@@ -43,12 +43,18 @@ jobs:
            container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
            container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
            secret-name: k8s-secret 
-        - uses: Azure/k8s-deploy@v1
-          with:
-            namespace: dev
-            manifests: 
-              k8s/deployment.yml
-            images: 
-              ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
-            imagepullsecrets: |
-             k8s-secret
+        - name: Deploy
+          run: |
+            kubectl apply -f k8s/deployment.yml
+
+#       - uses: Azure/k8s-deploy@v1
+#           with:
+#             namespace: dev
+#             run: 
+#             manifests: 
+#               k8s/deployment.yml
+#             images: 
+#               ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
+#             imagepullsecrets: |
+#              k8s-secret
+
