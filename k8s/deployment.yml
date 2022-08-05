@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: appteam1testing
-        image: apistoneteam1.azurecr.io/sampleapp:fd860fbe3a518dbcd05c7b73e1feee5766aafe80
+        image: apistoneteam1.azurecr.io/sampleapp:latest
         resources:
           limits:
             memory: "800Mi"
