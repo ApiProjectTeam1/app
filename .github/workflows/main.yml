@@ -101,6 +101,24 @@ jobs:
         - name: Deploy image
           run: |
             kubectl apply -f k8s/deployment.yml --namespace dev
+
+  qa-review-transition-issue:
+    name: merge to qa review
+    runs-on: ubuntu-latest
+    steps:
+    - name: Login
+      uses: atlassian/gajira-login@master
+      env:
+        JIRA_BASE_URL: ${{ secrets.JIRA_BASEURL }}
+        JIRA_USER_EMAIL: ${{ secrets.JIRA_USER }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_TOKEN }}
+
+    - name: Transition merged
+      uses: atlassian/gajira-transition@master
+      if: github.event.pull_request.merged == true
+      with:
+        issue: ${{ github.head_ref }}
+        transition: "Ready For QA Review"
             
             
             
