@@ -34,5 +34,5 @@ spec:
     app: appteam1testing
   type: LoadBalancer
   ports:
-  - port: 8080
+  - port: 8181
     targetPort: 80
