@@ -35,19 +35,16 @@ jobs:
           id: set-context
           uses: azure/aks-set-context@v3
           with:
-           resource-group: '${{ secrets.RESOURCE_GROUP }}' 
-           cluster-name: '${{ secrets.CLUSTER_NAME }}'
-        - uses: Azure/k8s-create-secret@v1
+            resource-group: APISTONE 
+            cluster-name: team1apistone
+        - name: Setup kubectl
+          id: install-kubectl
+          uses: azure/setup-kubectl@v3
+        - name: Deploy to AKS
+          id: deploy-aks
+          uses: Azure/k8s-deploy@v4
           with:
-            container-registry-url: cloudlifeacr.azurecr.io
-            container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
-            container-registry-password: ${{ secrets.REGISTRY_PASSWORD  }}
-            secret-name: k8s-secret
-        - uses: Azure/k8s-deploy@v1
-          with:
-            manifests: |
-              k8s/deployment.yml
-            images: |
-              apistoneteam1.azurecr.io/sample:9186f6e1f76eb1c635cc5c0abcd6303ed5b72b51
-            imagepullsecrets: |
-              k8s-secret
+            
+            manifests: k8s/deployment.yml
+            images: '${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}'
+            pull: false 
