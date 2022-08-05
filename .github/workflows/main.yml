@@ -47,22 +47,9 @@ jobs:
             then
               echo 'kubectl create namespace dev'
             fi
-        - uses: azure/k8s-create-secret@v1
-          with:
-            namespace: dev
-            container-registry-url: apistoneteam1.azure.io
-            container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
-            container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-            secret-name: kuber
-            
-        - uses: azure/k8s-deploy@v1
-          with: 
-            namespace: dev
-            manifests: k8s/deployment.yml
-            images: apistoneteam1.azurecr.io/sampleapp:${{ github.sha }}
-            imagepullsecrets: |
-              kuber
-            
+        - name: Deploy image
+          run: |
+            kubectl apply -f k8s/deployment.yml -namespace dev
             
             
             
