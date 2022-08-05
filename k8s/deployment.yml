@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: appteam1testing
 spec:
-  replicas: 0
+  replicas: 1
   paused: false
   selector:
     matchLabels:
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: appteam1testing
-        image: apistoneteam1.azurecr.io/sampleapp:latest
+        image: apistoneteam1.azurecr.io/sampleapp:9186f6e1f76eb1c635cc5c0abcd6303ed5b72b51
         resources:
           limits:
             memory: "800Mi"
