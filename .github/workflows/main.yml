@@ -39,11 +39,15 @@ jobs:
            cluster-name: '${{ secrets.CLUSTER_NAME }}'
         - uses: Azure/k8s-create-secret@v1
           with:
-           container-registry-url: apistoneteam1.azurecr.io
-           container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
-           container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-           secret-name: k8s-secret 
-        - name: Deploy image
-        
-          run: |
-            kubectl apply -f k8s/deployment.yml
+            container-registry-url: cloudlifeacr.azurecr.io
+            container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+            container-registry-password: ${{ secrets.REGISTRY_PASSWORD  }}
+            secret-name: k8s-secret
+        - uses: Azure/k8s-deploy@v1
+          with:
+            manifests: |
+              k8s/deployment.yml
+            images: |
+              apistoneteam1.azurecr.io/sample:${{ github.sha }}
+            imagepullsecrets: |
+              k8s-secret
