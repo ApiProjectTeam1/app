@@ -156,5 +156,14 @@ jobs:
         if: github.event.pull_request.merged == true
         with:
           issue: ${{ github.head_ref }}
-          transition: "Ready For Staging Release"  
-    
+          transition: "Ready For Staging Release" 
+          
+      - name: Push from dev to prod branch.
+        uses: Automattic/action-commit-to-branch@master
+        with:
+          dest_branch: 'master'
+          source_branch: 'dev'
+          commit_message: 'Automated tests for main.'
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }} 
+
