@@ -40,11 +40,30 @@ jobs:
         - name: Setup kubectl
           id: install-kubectl
           uses: azure/setup-kubectl@v3
-        - name: Deploy to AKS
-          id: deploy-aks
-          uses: Azure/k8s-deploy@v4
+        - name: Create namespace
+          run: |
+            namespacePresent='kubectl get namespace | grep dev | wx -l'
+            if [ $namespacePresent -eq 0 ]
+            then
+              echo 'kubectl create namespace dev'
+            fi
+        - uses: azure/k8s-create-secret@v1
           with:
+            namespace: dev
+            container-registry-url: apistoneteam1.azure.io
+            container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+            container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+            secret-name: kuber
             
+        - uses: azure/k8s-deploy@v1
+          with: 
+            namespace: dev
             manifests: k8s/deployment.yml
-            images: '${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}'
-            pull: false 
+            images: apistoneteam1.azurecr.io/sampleapp:${{ github.sha }}
+            imagepullsecrets: |
+              kuber
+            
+            
+            
+            
+        
