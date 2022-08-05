@@ -121,7 +121,40 @@ jobs:
       with:
         issue: ${{ github.head_ref }}
         transition: "Ready For QA Review"
-            
-            
-            
         
+  test-after-dev:
+      needs: qa-review-transition-issue
+      name: Testing the dev changes
+      runs-on: ubuntu-latest
+      steps:
+      - name: Checking out
+        uses: actions/checkout@master
+        with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+        
+      - name: after dev SonarQube Scan
+        uses: kitabisa/sonarqube-action@v1.2.0
+        with:
+          host: ${{ secrets.SONARQUBE_HOST }}
+          login: ${{ secrets.SONARQUBE_TOKEN }}
+
+  stagging-release-transition-issue:
+      needs: test-after-dev
+      name: merge to stagging release
+      runs-on: ubuntu-latest
+      steps:
+      - name: Login
+        uses: atlassian/gajira-login@master
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASEURL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_TOKEN }}
+
+      - name: Transition merged
+        uses: atlassian/gajira-transition@master
+        if: github.event.pull_request.merged == true
+        with:
+          issue: ${{ github.head_ref }}
+          transition: "Ready For Staging Release"  
+    
