@@ -156,14 +156,72 @@ jobs:
         if: github.event.pull_request.merged == true
         with:
           issue: ${{ github.head_ref }}
-          transition: "Ready For Staging Release" 
-          
-      - name: Push from dev to prod branch.
-        uses: Automattic/action-commit-to-branch@master
-        with:
-          dest_branch: 'master'
-          source_branch: 'dev'
-          commit_message: 'Automated tests for main.'
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }} 
+          transition: "Ready For Staging Release"
+        
+        
+  build-and-deploy-to-qa:
+          needs: stagging-release-transition-issue
+          runs-on: ubuntu-latest
+          steps:
+          # checkout the repo
+          - name: 'Checkout GitHub Action'
+            uses: actions/checkout@main
 
+          - name: 'Login via Azure CLI'
+            uses: azure/login@v1
+            with:
+              creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+          - name: 'Build and push image'
+            uses: azure/docker-login@v1
+            with:
+              login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+              username: ${{ secrets.REGISTRY_USERNAME }}
+              password: ${{ secrets.REGISTRY_PASSWORD }}
+          - run: |
+              docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
+              docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
+
+          - name: Azure login
+            id: login
+            uses: azure/login@v1.4.3
+            with:
+             creds: ${{ secrets.AZURE_CREDENTIALS }}
+          - name: Set AKS context
+            id: set-context
+            uses: azure/aks-set-context@v3
+            with:
+              resource-group: APISTONE 
+              cluster-name: team1apistone
+          - name: Setup kubectl
+            id: install-kubectl
+            uses: azure/setup-kubectl@v3
+          - name: Create namespace
+            run: |
+              namespacePresent='kubectl get namespace | grep qa | wx -l'
+              if [ $namespacePresent -eq 0 ]
+              then
+                echo 'kubectl create namespace qa'
+              fi
+          - name: Deploy image
+            run: |
+              kubectl apply -f k8s/deployment.yml --namespace qa
+
+  prod-release-transition-issue:
+    needs: build-and-deploy-to-qa
+    name: merge to prod release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Login
+      uses: atlassian/gajira-login@master
+      env:
+        JIRA_BASE_URL: ${{ secrets.JIRA_BASEURL }}
+        JIRA_USER_EMAIL: ${{ secrets.JIRA_USER }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_TOKEN }}
+
+    - name: Transition merged
+      uses: atlassian/gajira-transition@master
+      if: github.event.pull_request.merged == true
+      with:
+        issue: ${{ github.head_ref }}
+        transition: "Ready For Prod Release"
