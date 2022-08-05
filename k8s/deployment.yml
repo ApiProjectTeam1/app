@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: appteam1
+  name: appteam1testing
 spec:
   replicas: 1
   paused: false
   selector:
     matchLabels:
-      app: appteam1
+      app: appteam1testing
   template:
     metadata:
       labels:
-        app: appteam1
+        app: appteam1testing
     spec:
       containers:
-      - name: appteam1
+      - name: appteam1testing
         image: sampleapp
         resources:
           limits:
@@ -28,10 +28,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: appteam1-service
+  name: appteam1testing-service
 spec:
   selector:
-    app: appteam1
+    app: appteam1testing
   type: LoadBalancer
   ports:
   - port: 8080
